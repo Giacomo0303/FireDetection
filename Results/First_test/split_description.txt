@@ -1,0 +1,112 @@
+================================================================================
+DESCRIZIONE RIPRODUCIBILE DELLO SPLIT — FIRST TEST (Intra-Dataset Disjoint Split)
+================================================================================
+
+1. CONVENZIONE DELLE ETICHETTE
+------------------------------
+- 1.0 (Fire)   : Presenza di incendio attivo (fiamma visibile e/o colonna di fumo da incendio).
+- 0.0 (No_Fire): Assenza totale di incendio (né fiamma né fumo).
+
+2. REGOLE DI COSTRUZIONE PER SINGOLO DATASET
+--------------------------------------------
+
+A) FLAME2 (Data/FLAME2)
+   - Sorgente etichette: Frame_Pair_Labels.txt (53.451 coppie RGB-Thermal a 254x254).
+   - Nota su Frame_Pair_Labels.txt: riga 20 corretta da "41642" a "41643" per eliminare
+     la sovrapposizione di 1 frame tra l'intervallo 14 (38154-41642) e l'intervallo 15 (41643-45279).
+   - Classe No_Fire (0.0) [Intervallo 0: frame 1 - 13.700]:
+     * Gli ultimi 700 frame (13.001 - 13.700, drone a terra a fine volo con telecamera
+       rivolta verso il cielo) sono esclusi.
+     * I frame 1 - 13.000 sono divisi in 3 macro-blocchi temporali contigui separati
+       da un buffer di 500 frame:
+       - Train : range(1, 8801, step=12)      -> 734 immagini
+       - Buffer: frame 8801 - 9300 (scartati)
+       - Val   : range(9301, 10901, step=11)  -> 146 immagini
+       - Buffer: frame 10901 - 11400 (scartati)
+       - Test  : range(11401, 13001, step=11) -> 146 immagini
+   - Classe Fire (1.0) [Intervalli 1..18: frame 13.701 - 53.451]:
+     * Divisi in 3 macro-blocchi temporali contigui separati da un buffer di 500 frame:
+       - Train : Intervalli 1..13 (frame 13.701 - 38.153), campionati per ciascun
+                 intervallo con range(start, end + 1, step=33) -> 747 immagini
+       - Buffer: frame 38.154 - 38.653 (primi 500 frame dell'intervallo 14 scartati)
+       - Val   : Intervalli 14..15 a partire dal frame 38.654 fino a 45.279,
+                 campionati con range(max(start, 38654), end + 1, step=42) -> 159 immagini
+       - Buffer: frame 45.280 - 45.779 (primi 500 frame dell'intervallo 16 scartati)
+       - Test  : Intervalli 16..18 a partire dal frame 45.780 fino a 53.451,
+                 campionati con range(max(start, 45780), end + 1, step=48) -> 162 immagini
+
+B) FLAME3 (Data/FLAME3)
+   - Sottocartelle usate: "RGB/Corrected FOV" e "Thermal/Raw JPG".
+   - Tutti i file .JPG vengono prima ordinati cronologicamente leggendo il metadato
+     EXIF "DateTimeOriginal" (chiave di ordinamento: (DateTimeOriginal, filename)),
+     poiché la numerazione dei file 00001.JPG..00622.JPG era originariamente mescolata.
+   - Classe Fire (1.0) [622 immagini totali, nessun sottocampionamento]:
+     * Divisa per sessioni di volo separate (oltre 1 ora di distacco tra i voli):
+       - Train : tutti i voli con DateTimeOriginal che NON inizia per "2022:10:27 15:"
+                 né per "2022:10:27 19:" (ossia voli del 2022:10:25, 2022:10:26 e
+                 2022:10:27 17:xx) -> 396 immagini
+       - Val   : volo con DateTimeOriginal che inizia per "2022:10:27 15:" -> 116 immagini
+       - Test  : volo con DateTimeOriginal che inizia per "2022:10:27 19:" -> 110 immagini
+   - Classe No_Fire (0.0) [116 immagini totali ordinate per EXIF DateTimeOriginal]:
+     * Divisa cronologicamente con buffer del 4% scartato tra gli split (n = 116):
+       - Train : indici [:int(116 * 0.68)]                 -> [:78]    -> 78 immagini
+       - Buffer: indici [78:83] (scartati)
+       - Val   : indici [int(116 * 0.72):int(116 * 0.84)]  -> [83:97]  -> 14 immagini
+       - Buffer: indici [97:102] (scartati)
+       - Test  : indici [int(116 * 0.88):]                 -> [102:]   -> 14 immagini
+
+C) FireMan-UAV-RGBT (Data/FireMan-UAV-RGBT/Binary/Multimodal/rgbt)
+   - Mantiene la suddivisione ufficiale in cartelle train / val / test (per video DJI distinti):
+     * Train Fire   : dji_video_007..012, sottocampionati per video con [::4] -> 600 immagini
+     * Train No_Fire: dji_video_013..014, presi interamente [::1]             -> 139 immagini
+     * Val Fire     : dji_video_004..005, sottocampionati per video con [::2] ->  80 immagini
+     * Val No_Fire  : dji_video_006, preso interamente [::1]                  ->  11 immagini
+     * Test Fire    : dji_video_001..002, sottocampionati per video con [::3] -> 170 immagini
+     * Test No_Fire : dji_video_003, preso interamente [::1]                  ->  11 immagini
+
+D) RGBT-3M (Data/RGBT-3M)
+   - Tutti i frame (sia con bounding box fire=1 che smoke=0) appartengono a video di
+     incendi boschivi attivi e sono quindi etichettati come 1.0 (Fire).
+   - Unendo i frame delle cartelle originarie rgb/{train,test} e thermal/{train,test},
+     i frame vengono raggruppati per prefisso video, ordinati alfabeticamente per
+     basename e sottocampionati:
+     * Train (video1, video2, video3, video8, video10): [::12] -> 540 immagini (Fire)
+     * Val   (video5)                                 : [::15] -> 111 immagini (Fire)
+     * Test  (video4, video9)                         : [::15] -> 207 immagini (Fire)
+
+3. SHUFFLE E SALVATAGGIO
+------------------------
+- train_set.csv viene mescolato con random.seed(42) e random.shuffle(train_set).
+- val_set.csv e test_set.csv non vengono mescolati.
+
+4. RIEPILOGO CONTEGGI PER SPLIT E DATASET
+-----------------------------------------
+TRAIN SET (Totale: 3.234 | Fire: 2.283 [70.6%] | No_Fire: 951 [29.4%])
+  - FLAME2  : 1.481 (Fire: 747 | No_Fire: 734)
+  - FLAME3  :   474 (Fire: 396 | No_Fire:  78)
+  - FireMan :   739 (Fire: 600 | No_Fire: 139)
+  - RGBT-3M :   540 (Fire: 540 | No_Fire:   0)
+
+VALIDATION SET (Totale: 637 | Fire: 466 [73.2%] | No_Fire: 171 [26.8%])
+  - FLAME2  :   305 (Fire: 159 | No_Fire: 146)
+  - FLAME3  :   130 (Fire: 116 | No_Fire:  14)
+  - FireMan :    91 (Fire:  80 | No_Fire:  11)
+  - RGBT-3M :   111 (Fire: 111 | No_Fire:   0)
+
+TEST SET (Totale: 820 | Fire: 649 [79.1%] | No_Fire: 171 [20.9%])
+  - FLAME2  :   308 (Fire: 162 | No_Fire: 146)
+  - FLAME3  :   124 (Fire: 110 | No_Fire:  14)
+  - FireMan :   181 (Fire: 170 | No_Fire:  11)
+  - RGBT-3M :   207 (Fire: 207 | No_Fire:   0)
+
+5. RISULTATI OTTENUTI CON QUESTO SPLIT (best_model.pth - Epoca 50)
+------------------------------------------------------------------
+- Validation Globale: Loss = 0.0166 | Acc = 99.5% | BalAcc = 99.7% | F1 = 99.7%
+- Test Globale      : Loss = 0.0837 | Acc = 95.1% | BalAcc = 96.9% | F1 = 96.8%
+
+Dettaglio Test Set per Dataset e Classe:
+  - FLAME2  | Fire: 123/162 (75.9%) | No_Fire: 146/146 (100.0%)
+  - FLAME3  | Fire: 110/110 (100.0%)| No_Fire:  14/14  (100.0%)
+  - FireMan | Fire: 170/170 (100.0%)| No_Fire:  11/11  (100.0%)
+  - RGBT-3M | Fire: 206/207 (99.5%) | No_Fire:   -
+================================================================================
