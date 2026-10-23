@@ -1,0 +1,120 @@
+================================================================================
+DESCRIZIONE RIPRODUCIBILE DELLO SPLIT — FLAME3CROSS_CART (Zero-Shot Cross-Dataset + CART Negatives)
+Script di generazione: src/prepare_datasets_cart.py
+================================================================================
+
+1. PROTOCOLLO SPERIMENTALE E OBIETTIVO
+--------------------------------------
+- Protocollo: Leave-One-Dataset-Out (Zero-Shot Cross-Dataset Evaluation) con
+  arricchimento di campioni negativi naturali da UAV (dataset CART - Caltech Aerial RGBT).
+- Obiettivo dell'esperimento:
+  Verificare se l'integrazione di campioni negativi aerei ad alta variabilità (rocce
+  scaldati dal sole, fitta vegetazione e riflessi d'acqua da drone) nel Training Set
+  migliora la specificità e riduce i falsi allarmi sul Test Set non visto FLAME3
+  (100% unseen sia in Train che in Val) e su scenari reali di terra (MyData).
+- Convenzione etichette:
+  * 1.0 (Fire)   : Presenza di incendio attivo (fiamma e/o fumo da incendio).
+  * 0.0 (No_Fire): Assenza totale di incendio.
+
+2. REGOLE DI COSTRUZIONE PER SINGOLO DATASET
+--------------------------------------------
+
+A) FLAME2 (Data/FLAME2) -> Diviso tra Train e Val (0 immagini in Test)
+   - Classe No_Fire (0.0) [Intervallo 0: frame 1 - 13.700]:
+     * Val   : range(1, 1801, step=12)     -> 150 immagini
+     * Buffer: frame 1801 - 2300 (500 frame scartati per data leakage)
+     * Train : range(2301, 13701, step=13) -> 877 immagini
+               (include sequenza 12.500 - 13.700 con cielo, orizzonte e nuvole)
+   - Classe Fire (1.0) [Intervalli 1..18: frame 13.701 - 53.451]:
+     * Train : Intervalli 1..15, step=36   -> 884 immagini
+     * Buffer: frame 45.280 - 45.779 (500 frame scartati)
+     * Val   : Intervalli 16..18, step=48  -> 162 immagini
+
+B) FireMan-UAV-RGBT (Data/FireMan-UAV-RGBT/Binary/Multimodal/rgbt) -> Train e Val
+   - Train: unione delle cartelle "train" e "test" ufficiali di FireMan:
+     * Fire   : dji_video_007..012 [::4] (600) + dji_video_001..002 [::3] (170) -> 770 immagini
+     * No_Fire: dji_video_013..014 [::1] (139) + dji_video_003 [::1] (11)       -> 150 immagini
+   - Val  : cartella "val" ufficiale:
+     * Fire   : dji_video_004..005 [::2] -> 80 immagini
+     * No_Fire: dji_video_006 [::1]      -> 11 immagini
+
+C) RGBT-3M (Data/RGBT-3M) -> Train e Val (Solo Fire = 1.0)
+   - Train (video1, video2, video3, video4, video8, video9, video10) [::14] -> 684 immagini
+   - Val   (video5)                                                 [::15] -> 111 immagini
+
+D) CART (Data/labeled_rgbt_pairs) -> 100% nel Training Set (Tutte No_Fire = 0.0)
+   - 504 coppie estratte con campionamento bilanciato da 2.282 coppie aerial RGB-T:
+     * Foresta montana (big_bear, caltech-nature) [::3]   : 165 immagini
+     * Canyon rocciosi e sabbia (ColoradoRiver)   [::2]   : 180 immagini
+     * Laghi, acqua e riflessi (Castaic_Lake, duck) [::9] : 159 immagini
+   - Canali: RGB da color/, Termico da thermal8/ (_eo- -> _thermal-)
+
+E) FLAME3 (Data/FLAME3) -> 100% nel Test Set (Unseen Dataset)
+   - Sottocartelle "RGB/Corrected FOV" e "Thermal/Raw JPG":
+     * Test Fire   : 622 immagini
+     * Test No_Fire: 116 immagini
+     * Totale Test : 738 immagini
+
+3. RIEPILOGO CONTEGGI PER SPLIT E DATASET
+-----------------------------------------
+TRAIN SET (Totale: 3.869 | Fire: 2.338 [60.4%] | No_Fire: 1.531 [39.6%])
+  - FLAME2            : 1.761 (Fire: 884 | No_Fire: 877)
+  - FireMan           :   920 (Fire: 770 | No_Fire: 150)
+  - RGBT-3M           :   684 (Fire: 684 | No_Fire:   0)
+  - labeled_rgbt_pairs:   504 (Fire:   0 | No_Fire: 504)
+  - FLAME3            :     0
+
+VALIDATION SET (Totale: 514 | Fire: 353 [68.7%] | No_Fire: 161 [31.3%])
+  - FLAME2            :   312 (Fire: 162 | No_Fire: 150)
+  - FireMan           :    91 (Fire:  80 | No_Fire:  11)
+  - RGBT-3M           :   111 (Fire: 111 | No_Fire:   0)
+  - FLAME3            :     0
+
+TEST SET (Totale: 738 | Fire: 622 [84.3%] | No_Fire: 116 [15.7%])
+  - FLAME3            :   738 (Fire: 622 | No_Fire: 116)
+
+4. RISULTATI OTTENUTI CON QUESTO MODELLO (best_model.pth - Epoca 12)
+--------------------------------------------------------------------
+- Validation Globale:
+  * Overall: Acc = 89.3% | BalAcc = 92.2% | F1 = 91.6%
+  * FLAME2  | Fire: 116/162 ( 71.6%) | No_Fire: 150/150 (100.0%)
+  * FireMan | Fire:  70/80  ( 87.5%) | No_Fire:  11/11  (100.0%)
+  * RGBT-3M | Fire: 111/111 (100.0%)
+  * Falsi Positivi in Val: ZERO (161/161 corretti su No_Fire)
+
+- Test Globale (100% Unseen FLAME3):
+  * Loss: 0.2508 | Acc: 89.57% | BalAcc: 92.76% | F1: 93.44%
+  * FLAME3 | Fire (Recall)     : 548/622 (88.1%)
+  * FLAME3 | No_Fire (Specificità): 113/116 (97.4%)
+  * Falsi Positivi su FLAME3   : SOLO 3 su 116 (rispetto ai 10 di Flame3Cross!)
+
+5. CONFRONTO DIRETTO: FLAME3CROSS (Baseline) vs FLAME3CROSS_CART (+CART)
+-------------------------------------------------------------------------
+| Metrica su FLAME3 (Unseen)   | Flame3Cross (Senza CART) | Flame3Cross_CART (+CART) | Variazione |
+|------------------------------|--------------------------|--------------------------|------------|
+| Specificità No_Fire          | 91.38% (106/116)         | 97.41% (113/116)         | +6.03%     |
+| Falsi Allarmi (FP su No_Fire)| 10 su 116                | 3 su 116                 | -70.0%     |
+| Balanced Accuracy            | 91.75%                   | 92.76%                   | +1.01%     |
+| Recall Fire                  | 92.12% (573/622)         | 88.10% (548/622)         | -4.02%     |
+| Accuracy Globale             | 92.01%                   | 89.57%                   | -2.44%     |
+| F1-Score                     | 95.10%                   | 93.44%                   | -1.66%     |
+
+6. ABLATION TEST SULLA MODALITÀ DI INPUT A INFERENZA (FLAME3 - 738 IMG)
+------------------------------------------------------------------------
+| Modalità di Input                        | Accuracy | Balanced Acc | F1-Score | Fire (Recall)   | No_Fire (Specif.) |
+|------------------------------------------|----------|--------------|----------|-----------------|-------------------|
+| RGB + Termico (4 canali completi)        |  89.57%  |    92.76%    |  93.44%  | 548/622 (88.1%) |  113/116 (97.4%)  |
+| Solo RGB (canale Termico = media 0.5)    |  88.21%  |    92.31%    |  92.51%  | 537/622 (86.3%) |  114/116 (98.3%)  |
+| Solo Termico (RGB = medie ImageNet)      |  85.64%  |    54.31%    |  92.15%  | 622/622 (100.0%)|   10/116 ( 8.6%)  |
+
+7. TEST COMPARATIVO SU IMMAGINI DA TERRA / SMARTPHONE (MyData - Solo RGB)
+--------------------------------------------------------------------------
+| Immagine    | Contenuto                    | Flame3Cross (Prob Fire) | Flame3Cross_CART (Prob Fire) | Esito CART |
+|-------------|------------------------------|-------------------------|------------------------------|------------|
+| fire0.jpeg  | Sterpaglie d'ulivo (9:16)    | 20.8% (NO_FIRE)         | 27.4% (NO_FIRE)              | [!]        |
+| fire1.jpeg  | Barbecue acceso con fiamma   | 94.8% (FIRE)            | 19.6% (NO_FIRE)              | [!]        |
+| fire2.jpeg  | Incendio collina + elicottero| 99.7% (FIRE)            | 83.5% (FIRE)                 | OK         |
+| nofire0.jpg | Camion pompieri rossi        | 28.6% (NO_FIRE)         | 33.3% (NO_FIRE)              | OK         |
+| nofire1.jpg | Tramonto rosso con sole      |  8.9% (NO_FIRE)         | 18.6% (NO_FIRE)              | OK         |
+| nofire2.jpg | Mare e costa con nuvole      | 93.2% (FIRE) [FALSO POS]| 41.8% (NO_FIRE)              | RISOLTO OK |
+================================================================================
