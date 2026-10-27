@@ -7,7 +7,7 @@ import matplotlib.patches as patches
 def create_simple_test_results(output_path="Results/risultati_test.png"):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    fig_w, fig_h = 15.0, 10.8
+    fig_w, fig_h = 15.0, 16.5
     fig, ax = plt.subplots(figsize=(fig_w, fig_h), dpi=200)
     ax.set_xlim(0, fig_w)
     ax.set_ylim(0, fig_h)
@@ -19,11 +19,11 @@ def create_simple_test_results(output_path="Results/risultati_test.png"):
     font_main = "DejaVu Sans"
 
     # Titolo principale
-    ax.text(fig_w / 2, fig_h - 0.65, "Risultati di Test nei 3 Esperimenti: RGBT vs Solo RGB vs Solo Termica",
+    ax.text(fig_w / 2, fig_h - 0.55, "Risultati di Test nei 5 Esperimenti: RGBT vs Solo RGB vs Solo Termica",
             fontsize=16, fontweight="bold", color="#111827", ha="center", va="center", family=font_main)
 
-    def draw_table(x, y, col_widths, headers, rows, title, row_height=0.42):
-        ax.text(x, y + 0.20, title, fontsize=11.5, fontweight="bold", color="#1F2937", va="bottom", family=font_main)
+    def draw_table(x, y, col_widths, headers, rows, title, row_height=0.40):
+        ax.text(x, y + 0.16, title, fontsize=11.0, fontweight="bold", color="#1F2937", va="bottom", family=font_main)
 
         curr_y = y
         tot_w = sum(col_widths)
@@ -72,7 +72,7 @@ def create_simple_test_results(output_path="Results/risultati_test.png"):
     # =========================================================================
     # 1. TEST DATASET MISTO (FIRST_TEST - 820 campioni)
     # =========================================================================
-    y_1 = fig_h - 1.45
+    y_1 = fig_h - 1.25
     rows_1 = [
         [
             [("RGBT (4 Canali)", "#1E3A8A"), widths[0], "left"],
@@ -106,12 +106,12 @@ def create_simple_test_results(output_path="Results/risultati_test.png"):
         ],
     ]
     end_y1 = draw_table(0.5, y_1, widths, headers, rows_1,
-                        title="1. Esperimento 1: Dataset Misto (First_test — Test Set Misto: 820 immagini)")
+                        title="1. Esperimento 1: Single-Branch su Dataset Misto (First_test — Test Set Misto: 820 immagini)")
 
     # =========================================================================
     # 2. TEST CROSS DATASET FLAME3 (FLAME3CROSS - 738 campioni unseen)
     # =========================================================================
-    y_2 = end_y1 - 0.65
+    y_2 = end_y1 - 0.55
     rows_2 = [
         [
             [("RGBT (4 Canali)", "#1E3A8A"), widths[0], "left"],
@@ -145,12 +145,12 @@ def create_simple_test_results(output_path="Results/risultati_test.png"):
         ],
     ]
     end_y2 = draw_table(0.5, y_2, widths, headers, rows_2,
-                        title="2. Esperimento 2: Cross Dataset (Flame3Cross — Test Set FLAME3 100% Unseen: 738 immagini)")
+                        title="2. Esperimento 2: Single-Branch Cross Dataset (Flame3Cross — Test Set FLAME3 100% Unseen: 738 immagini)")
 
     # =========================================================================
     # 3. TEST CROSS DATASET CON CART (FLAME3CROSS_CART - 738 campioni unseen)
     # =========================================================================
-    y_3 = end_y2 - 0.65
+    y_3 = end_y2 - 0.55
     rows_3 = [
         [
             [("RGBT (4 Canali)", "#1E3A8A"), widths[0], "left"],
@@ -184,60 +184,159 @@ def create_simple_test_results(output_path="Results/risultati_test.png"):
         ],
     ]
     end_y3 = draw_table(0.5, y_3, widths, headers, rows_3,
-                        title="3. Esperimento 3: Cross Dataset con CART (Flame3Cross_CART — Test Set FLAME3 100% Unseen: 738 immagini)")
+                        title="3. Esperimento 3: Single-Branch Cross Dataset con CART (Flame3Cross_CART — Test Set FLAME3: 738 immagini)")
 
     # =========================================================================
-    # 4. TABELLA DI CONFRONTO DIRETTO DEI 3 MODELLI (MODALITÀ RGBT A 4 CANALI)
+    # 4. DUAL-BRANCH V1 (1 CLASSIFICATORE + PROIEZIONE - 738 campioni unseen)
     # =========================================================================
-    y_4 = end_y3 - 0.65
-    headers_4 = [
-        "Esperimento (RGBT)", "Test Set", "Accuracy", "Balanced Acc",
-        "F1-Score", "Precision", "Recall", "Falsi Negativi (FN)", "Falsi Positivi (FP)"
-    ]
-    widths_4 = [2.8, 2.0, 1.3, 1.4, 1.3, 1.3, 1.3, 1.4, 1.2]  # tot = 14.0
+    y_4 = end_y3 - 0.55
     rows_4 = [
         [
-            [("1. Dataset Misto (First_test)", "#111827"), widths_4[0], "left"],
-            ["820 img (Misto)", widths_4[1], "center"],
-            ["95.12%", widths_4[2], "center"],
-            ["96.92%", widths_4[3], "center"],
-            ["96.82%", widths_4[4], "center"],
-            ["100.00%", widths_4[5], "center"],
-            ["93.84%", widths_4[6], "center"],
-            ["40", widths_4[7], "center"],
-            ["0", widths_4[8], "center"]
+            [("Fused RGBT (Dual-Branch v1)", "#1E3A8A"), widths[0], "left"],
+            ["90.65%", widths[1], "center"],
+            ["91.65%", widths[2], "center"],
+            ["94.21%", widths[3], "center"],
+            ["98.59%", widths[4], "center"],
+            [("90.19%", "#1E3A8A"), widths[5], "center"],
+            [("61 (Incendi mancati)", "#B91C1C"), widths[6], "center"],
+            ["8", widths[7], "center"]
         ],
         [
-            [("2. Cross Dataset (Flame3Cross)", "#111827"), widths_4[0], "left"],
-            ["738 img (FLAME3)", widths_4[1], "center"],
-            ["92.01%", widths_4[2], "center"],
-            ["91.75%", widths_4[3], "center"],
-            ["95.10%", widths_4[4], "center"],
-            ["98.28%", widths_4[5], "center"],
-            [("92.12%", "#065F46"), widths_4[6], "center"],
-            [("49", "#065F46"), widths_4[7], "center"],
-            ["10", widths_4[8], "center"]
+            ["Branch Solo RGB (3 ch)", widths[0], "left"],
+            ["86.86%", widths[1], "center"],
+            ["82.74%", widths[2], "center"],
+            ["91.92%", widths[3], "center"],
+            ["95.34%", widths[4], "center"],
+            ["88.75%", widths[5], "center"],
+            ["70", widths[6], "center"],
+            ["27", widths[7], "center"]
         ],
         [
-            [("3. Cross Dataset + CART", "#111827"), widths_4[0], "left"],
-            ["738 img (FLAME3)", widths_4[1], "center"],
-            ["89.57%", widths_4[2], "center"],
-            ["92.76%", widths_4[3], "center"],
-            ["93.44%", widths_4[4], "center"],
-            ["99.46%", widths_4[5], "center"],
-            [("88.10%", "#B91C1C"), widths_4[6], "center"],
-            [("74 (+25 mancati)", "#B91C1C"), widths_4[7], "center"],
-            ["3", widths_4[8], "center"]
+            ["Branch Solo Termico (1 ch)", widths[0], "left"],
+            ["93.90%", widths[1], "center"],
+            ["83.76%", widths[2], "center"],
+            ["96.46%", widths[3], "center"],
+            ["94.45%", widths[4], "center"],
+            [("98.55%", "#065F46"), widths[5], "center"],
+            [("9", "#065F46"), widths[6], "center"],
+            ["36", widths[7], "center"]
         ],
     ]
-    draw_table(0.5, y_4, widths_4, headers_4, rows_4,
-               title="4. Confronto Diretto RGBT tra i 3 Esperimenti (Evidenza su Falsi Negativi e Recall)")
+    end_y4 = draw_table(0.5, y_4, widths, headers, rows_4,
+                        title="4. Esperimento 4: Dual-Branch v1 (1 Classificatore + Proiezione — DualBranch_ResNet50_CART: 738 img)")
+
+    # =========================================================================
+    # 5. DUAL-BRANCH V2 (2 CLASSIFICATORI SEPARATI, NO PROIEZIONE - 738 campioni)
+    # =========================================================================
+    y_5 = end_y4 - 0.55
+    rows_5 = [
+        [
+            [("Fused RGBT (Dual-Branch v2)", "#065F46"), widths[0], "left"],
+            [("94.72%", "#065F46"), widths[1], "center"],
+            [("96.51%", "#065F46"), widths[2], "center"],
+            [("96.77%", "#065F46"), widths[3], "center"],
+            [("99.83%", "#065F46"), widths[4], "center"],
+            [("93.89%", "#065F46"), widths[5], "center"],
+            [("38 (Miglior Zero-Shot!)", "#065F46"), widths[6], "center"],
+            [("1", "#065F46"), widths[7], "center"]
+        ],
+        [
+            ["Branch Solo RGB (Unimodal Clf)", widths[0], "left"],
+            ["87.53%", widths[1], "center"],
+            ["92.60%", widths[2], "center"],
+            ["92.01%", widths[3], "center"],
+            [("100.00%", "#065F46"), widths[4], "center"],
+            ["85.21%", widths[5], "center"],
+            ["92", widths[6], "center"],
+            [("0", "#065F46"), widths[7], "center"]
+        ],
+        [
+            ["Branch Solo Termico (Unimodal Clf)", widths[0], "left"],
+            [("94.99%", "#065F46"), widths[1], "center"],
+            ["87.21%", widths[2], "center"],
+            [("97.07%", "#065F46"), widths[3], "center"],
+            ["95.63%", widths[4], "center"],
+            [("98.55%", "#065F46"), widths[5], "center"],
+            [("9", "#065F46"), widths[6], "center"],
+            ["28", widths[7], "center"]
+        ],
+    ]
+    end_y5 = draw_table(0.5, y_5, widths, headers, rows_5,
+                        title="5. Esperimento 5: Dual-Branch v2 (2 Classificatori Separati, No Proiezione — DualBranch_2Clf_ResNet50_CART)")
+
+    # =========================================================================
+    # 6. TABELLA DI CONFRONTO DIRETTO DEI 5 MODELLI (MODALITÀ RGBT)
+    # =========================================================================
+    y_6 = end_y5 - 0.55
+    headers_6 = [
+        "Esperimento (Modalità RGBT)", "Test Set", "Accuracy", "Balanced Acc",
+        "F1-Score", "Precision", "Recall", "Falsi Negativi (FN)", "Falsi Positivi (FP)"
+    ]
+    widths_6 = [2.9, 1.6, 1.2, 1.35, 1.2, 1.2, 1.2, 1.7, 1.65]  # tot = 14.0
+    rows_6 = [
+        [
+            [("1. Dataset Misto (First_test)", "#111827"), widths_6[0], "left"],
+            ["820 img (Misto)", widths_6[1], "center"],
+            ["95.12%", widths_6[2], "center"],
+            ["96.92%", widths_6[3], "center"],
+            ["96.82%", widths_6[4], "center"],
+            ["100.00%", widths_6[5], "center"],
+            ["93.84%", widths_6[6], "center"],
+            ["40", widths_6[7], "center"],
+            ["0", widths_6[8], "center"]
+        ],
+        [
+            [("2. Cross Dataset (Flame3Cross)", "#111827"), widths_6[0], "left"],
+            ["738 img (FLAME3)", widths_6[1], "center"],
+            ["92.01%", widths_6[2], "center"],
+            ["91.75%", widths_6[3], "center"],
+            ["95.10%", widths_6[4], "center"],
+            ["98.28%", widths_6[5], "center"],
+            ["92.12%", widths_6[6], "center"],
+            ["49", widths_6[7], "center"],
+            ["10", widths_6[8], "center"]
+        ],
+        [
+            [("3. Cross + CART (Single-Branch)", "#111827"), widths_6[0], "left"],
+            ["738 img (FLAME3)", widths_6[1], "center"],
+            ["89.57%", widths_6[2], "center"],
+            ["92.76%", widths_6[3], "center"],
+            ["93.44%", widths_6[4], "center"],
+            ["99.46%", widths_6[5], "center"],
+            [("88.10%", "#B91C1C"), widths_6[6], "center"],
+            [("74", "#B91C1C"), widths_6[7], "center"],
+            ["3", widths_6[8], "center"]
+        ],
+        [
+            [("4. Dual-Branch v1 (1 Clf + Proj)", "#111827"), widths_6[0], "left"],
+            ["738 img (FLAME3)", widths_6[1], "center"],
+            ["90.65%", widths_6[2], "center"],
+            ["91.65%", widths_6[3], "center"],
+            ["94.21%", widths_6[4], "center"],
+            ["98.59%", widths_6[5], "center"],
+            ["90.19%", widths_6[6], "center"],
+            ["61", widths_6[7], "center"],
+            ["8", widths_6[8], "center"]
+        ],
+        [
+            [("5. Dual-Branch v2 (2 Clf, No Proj)", "#065F46"), widths_6[0], "left"],
+            ["738 img (FLAME3)", widths_6[1], "center"],
+            [("94.72%", "#065F46"), widths_6[2], "center"],
+            [("96.51%", "#065F46"), widths_6[3], "center"],
+            [("96.77%", "#065F46"), widths_6[4], "center"],
+            [("99.83%", "#065F46"), widths_6[5], "center"],
+            [("93.89%", "#065F46"), widths_6[6], "center"],
+            [("38 (-36 vs Single!)", "#065F46"), widths_6[7], "center"],
+            [("1", "#065F46"), widths_6[8], "center"]
+        ],
+    ]
+    draw_table(0.5, y_6, widths_6, headers_6, rows_6,
+               title="6. Confronto Diretto RGBT tra i 5 Esperimenti (Evidenza su Falsi Negativi e Recall)")
 
     plt.tight_layout()
     plt.savefig(output_path, dpi=200, facecolor="white", edgecolor="none")
-    plt.savefig("Results/confronto_esperimenti.png", dpi=200, facecolor="white", edgecolor="none")
     plt.close()
-    print(f"Immagine aggiornata con evidenza sui Falsi Negativi salvata in: {output_path}")
+    print(f"Immagine aggiornata con tutti i 5 esperimenti salvata in: {output_path}")
 
 if __name__ == "__main__":
     create_simple_test_results()

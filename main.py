@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 
 import config as cfg
 from src.datasets import FireClassificationDataset
+from src.models import DualBranchRGBTModel
 from src.train import eval_model, train_model
 
 
@@ -58,14 +59,28 @@ def main():
         num_workers=cfg.NUM_WORKERS // 2,
     )
 
-    model = timm.create_model(
-        model_name=cfg.MODEL_NAME,
-        pretrained=cfg.PRETRAINED,
-        in_chans=cfg.IN_CHANS,
-        num_classes=cfg.NUM_CLASSES,
-        drop_rate=cfg.DROP_RATE,
-        drop_path_rate=cfg.DROP_PATH_RATE,
-    ).to(device)
+    if getattr(cfg, "DUAL_BRANCH", False):
+        logging.info(
+            f"Inizializzazione DualBranchRGBTModel ({cfg.MODEL_NAME}) con pesi loss: "
+            f"Fused={cfg.LOSS_WEIGHT_FUSED}, RGB={cfg.LOSS_WEIGHT_RGB}, TH={cfg.LOSS_WEIGHT_TH}"
+        )
+        model = DualBranchRGBTModel(
+            model_name=cfg.MODEL_NAME,
+            pretrained=cfg.PRETRAINED,
+            num_classes=cfg.NUM_CLASSES,
+            drop_rate=cfg.DROP_RATE,
+            drop_path_rate=cfg.DROP_PATH_RATE,
+        ).to(device)
+    else:
+        logging.info(f"Inizializzazione Single-Branch ({cfg.MODEL_NAME}, in_chans={cfg.IN_CHANS})")
+        model = timm.create_model(
+            model_name=cfg.MODEL_NAME,
+            pretrained=cfg.PRETRAINED,
+            in_chans=cfg.IN_CHANS,
+            num_classes=cfg.NUM_CLASSES,
+            drop_rate=cfg.DROP_RATE,
+            drop_path_rate=cfg.DROP_PATH_RATE,
+        ).to(device)
 
     loss_fn = nn.BCEWithLogitsLoss()
     optimizer = torch.optim.AdamW(
@@ -98,12 +113,27 @@ def main():
 
     test_metrics = eval_model(model, test_loader, loss_fn, device)
     logging.info("-" * 80)
-    logging.info(
-        f"[Test Set Finale] Loss: {test_metrics['loss']:.4f} - "
-        f"Acc: {test_metrics['acc']:.3f} - "
-        f"BalAcc: {test_metrics['bal_acc']:.3f} - "
-        f"F1: {test_metrics['f1']:.3f}"
-    )
+    if "rgb" in test_metrics and "thermal" in test_metrics:
+        for branch_key, label_str in [
+            ("fused", "Test Set Finale - FUSED (RGBT)"),
+            ("rgb", "Test Set Finale - SOLO RGB    "),
+            ("thermal", "Test Set Finale - SOLO TERMICO"),
+        ]:
+            m = test_metrics[branch_key]
+            logging.info(
+                f"[{label_str}] Loss: {m['loss']:.4f} | "
+                f"Acc: {m['acc']:.4f} | BalAcc: {m['bal_acc']:.4f} | "
+                f"F1: {m['f1']:.4f} | Prec: {m['precision']:.4f} | "
+                f"Recall: {m['recall']:.4f} | FN: {m['fn']} | FP: {m['fp']} "
+                f"(TP: {m['tp']}, TN: {m['tn']})"
+            )
+    else:
+        logging.info(
+            f"[Test Set Finale] Loss: {test_metrics['loss']:.4f} - "
+            f"Acc: {test_metrics['acc']:.3f} - "
+            f"BalAcc: {test_metrics['bal_acc']:.3f} - "
+            f"F1: {test_metrics['f1']:.3f}"
+        )
 
 
 if __name__ == "__main__":
