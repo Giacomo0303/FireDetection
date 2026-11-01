@@ -1,13 +1,15 @@
-from src.models import DualBranchRGBTModel
-from src.datasets import FireClassificationDataset
-from torch.utils.data import DataLoader
-import matplotlib.pyplot as plt
-from sklearn.manifold import TSNE
-from umap import UMAP
-from tqdm import tqdm
-import config as cfg
-import torch
 import argparse
+
+import matplotlib.pyplot as plt
+import torch
+from sklearn.manifold import TSNE
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+from umap import UMAP
+
+import config as cfg
+from src.datasets import FireClassificationDataset
+from src.models import DualBranchRGBTModel
 
 
 def main(checkpoint_path):

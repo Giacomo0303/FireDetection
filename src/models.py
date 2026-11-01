@@ -32,19 +32,22 @@ class DualBranchRGBTModel(nn.Module):
             drop_path_rate=drop_path_rate,
         )
 
-        feat_dim = self.rgb_backbone.num_features
+        # Dimensione reale del vettore di feature in uscita dalla backbone
+        feat_dim = getattr(
+            self.rgb_backbone, "head_hidden_size", self.rgb_backbone.num_features
+        )
 
-        # 3. Normalizzazione dei singoli branch per allineare le scale nello spazio 2048 (senza ReLU)
+        # 3. Normalizzazione dei singoli branch per allineare le scale (senza ReLU)
         self.rgb_norm = nn.LayerNorm(feat_dim)
         self.thermal_norm = nn.LayerNorm(feat_dim)
 
-        # 4. Classificatore Unimodale Condiviso (per i singoli segnali RGB o Termico a 2048 dim)
+        # 4. Classificatore Unimodale Condiviso (per i singoli segnali RGB o Termico)
         self.unimodal_classifier = nn.Sequential(
             nn.Dropout(p=drop_rate),
             nn.Linear(feat_dim, num_classes),
         )
 
-        # 5. Classificatore Fuso (lavora direttamente sulla concatenazione [f_rgb, f_th] a 4096 dim)
+        # 5. Classificatore Fuso (lavora direttamente sulla concatenazione [f_rgb, f_th])
         self.fused_classifier = nn.Sequential(
             nn.Dropout(p=drop_rate),
             nn.Linear(feat_dim * 2, num_classes),
@@ -55,18 +58,18 @@ class DualBranchRGBTModel(nn.Module):
         x_rgb = x[:, :3, :, :]
         x_th = x[:, 3:4, :, :]
 
-        # Estrazione feature indipendenti e normalizzazione (B, 2048)
+        # Estrazione feature indipendenti e normalizzazione (B, feat_dim)
         f_rgb = self.rgb_norm(self.rgb_backbone(x_rgb))
         f_th = self.thermal_norm(self.thermal_backbone(x_th))
 
-        # Concatenazione diretta delle feature normalizzate (B, 4096) senza proiezione intermedia
+        # Concatenazione diretta delle feature normalizzate (B, feat_dim * 2) senza proiezione intermedia
         f_cat = torch.cat([f_rgb, f_th], dim=1)
 
-        # Task 1: Classificazione unimodale tramite il classificatore condiviso 2048 -> 1
+        # Task 1: Classificazione unimodale tramite il classificatore condiviso feat_dim -> 1
         logit_rgb = self.unimodal_classifier(f_rgb).squeeze(1)
         logit_th = self.unimodal_classifier(f_th).squeeze(1)
 
-        # Task 2: Classificazione multimodale tramite il classificatore dedicato 4096 -> 1
+        # Task 2: Classificazione multimodale tramite il classificatore dedicato (feat_dim * 2) -> 1
         logit_fused = self.fused_classifier(f_cat).squeeze(1)
 
         return {

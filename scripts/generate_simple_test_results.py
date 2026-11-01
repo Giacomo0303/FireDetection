@@ -232,33 +232,33 @@ def create_simple_test_results(output_path="Results/risultati_test.png"):
     rows_5 = [
         [
             [("Fused RGBT (Dual-Branch v2)", "#065F46"), widths[0], "left"],
-            [("94.72%", "#065F46"), widths[1], "center"],
-            [("96.51%", "#065F46"), widths[2], "center"],
-            [("96.77%", "#065F46"), widths[3], "center"],
-            [("99.83%", "#065F46"), widths[4], "center"],
-            [("93.89%", "#065F46"), widths[5], "center"],
-            [("38 (Miglior Zero-Shot!)", "#065F46"), widths[6], "center"],
-            [("1", "#065F46"), widths[7], "center"]
+            [("95.26%", "#065F46"), widths[1], "center"],
+            [("95.78%", "#065F46"), widths[2], "center"],
+            [("97.12%", "#065F46"), widths[3], "center"],
+            [("99.33%", "#065F46"), widths[4], "center"],
+            [("95.02%", "#065F46"), widths[5], "center"],
+            [("31 (Miglior Zero-Shot!)", "#065F46"), widths[6], "center"],
+            [("4", "#065F46"), widths[7], "center"]
         ],
         [
             ["Branch Solo RGB (Unimodal Clf)", widths[0], "left"],
-            ["87.53%", widths[1], "center"],
-            ["92.60%", widths[2], "center"],
-            ["92.01%", widths[3], "center"],
-            [("100.00%", "#065F46"), widths[4], "center"],
-            ["85.21%", widths[5], "center"],
-            ["92", widths[6], "center"],
-            [("0", "#065F46"), widths[7], "center"]
+            ["87.94%", widths[1], "center"],
+            ["91.09%", widths[2], "center"],
+            ["92.36%", widths[3], "center"],
+            ["99.08%", widths[4], "center"],
+            ["86.50%", widths[5], "center"],
+            ["84", widths[6], "center"],
+            ["5", widths[7], "center"]
         ],
         [
             ["Branch Solo Termico (Unimodal Clf)", widths[0], "left"],
-            [("94.99%", "#065F46"), widths[1], "center"],
-            ["87.21%", widths[2], "center"],
-            [("97.07%", "#065F46"), widths[3], "center"],
-            ["95.63%", widths[4], "center"],
-            [("98.55%", "#065F46"), widths[5], "center"],
-            [("9", "#065F46"), widths[6], "center"],
-            ["28", widths[7], "center"]
+            [("96.75%", "#065F46"), widths[1], "center"],
+            [("91.41%", "#065F46"), widths[2], "center"],
+            [("98.09%", "#065F46"), widths[3], "center"],
+            ["97.01%", widths[4], "center"],
+            [("99.20%", "#065F46"), widths[5], "center"],
+            [("5", "#065F46"), widths[6], "center"],
+            ["19", widths[7], "center"]
         ],
     ]
     end_y5 = draw_table(0.5, y_5, widths, headers, rows_5,
@@ -321,13 +321,13 @@ def create_simple_test_results(output_path="Results/risultati_test.png"):
         [
             [("5. Dual-Branch v2 (2 Clf, No Proj)", "#065F46"), widths_6[0], "left"],
             ["738 img (FLAME3)", widths_6[1], "center"],
-            [("94.72%", "#065F46"), widths_6[2], "center"],
-            [("96.51%", "#065F46"), widths_6[3], "center"],
-            [("96.77%", "#065F46"), widths_6[4], "center"],
-            [("99.83%", "#065F46"), widths_6[5], "center"],
-            [("93.89%", "#065F46"), widths_6[6], "center"],
-            [("38 (-36 vs Single!)", "#065F46"), widths_6[7], "center"],
-            [("1", "#065F46"), widths_6[8], "center"]
+            [("95.26%", "#065F46"), widths_6[2], "center"],
+            [("95.78%", "#065F46"), widths_6[3], "center"],
+            [("97.12%", "#065F46"), widths_6[4], "center"],
+            [("99.33%", "#065F46"), widths_6[5], "center"],
+            [("95.02%", "#065F46"), widths_6[6], "center"],
+            [("31 (-43 vs Single!)", "#065F46"), widths_6[7], "center"],
+            [("4", "#065F46"), widths_6[8], "center"]
         ],
     ]
     draw_table(0.5, y_6, widths_6, headers_6, rows_6,

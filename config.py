@@ -2,7 +2,7 @@ DATA_PATH = "/home/giacomo/Code/FireDet/Data"
 SAVE_DIR = "checkpoints"
 LOG_FILE = "log.txt"
 
-MODEL_NAME = "resnet50"
+MODEL_NAME = "resnet18"
 PRETRAINED = True
 IN_CHANS = 4
 NUM_CLASSES = 1
