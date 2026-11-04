@@ -1,0 +1,77 @@
+2026-11-04 19:27:50 | Inizializzazione SingleBranchModel (resnet18, mode=rgb)
+2026-11-04 19:27:50 | Loading pretrained weights from Hugging Face hub (timm/resnet18.a1_in1k)
+2026-11-04 19:27:50 | HTTP Request: HEAD https://huggingface.co/timm/resnet18.a1_in1k/resolve/main/model.safetensors "HTTP/1.1 302 Found"
+2026-11-04 19:27:50 | Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-04 19:27:50 | [timm/resnet18.a1_in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+2026-11-04 19:27:50 | Avvio addestramento su cuda per 100 epoche (Patience Early Stopping: 10)...
+2026-11-04 19:27:50 | --------------------------------------------------------------------------------
+2026-11-04 19:28:08 | Epoca [01/100] | LR: 1.00e-05 | Train Loss: 0.6809 | Val Loss: 0.4789 - Acc: 0.815 - BalAcc: 0.854 - F1: 0.848
+2026-11-04 19:28:08 |   --> Checkpoint salvato con Val Loss: 0.4789
+2026-11-04 19:28:24 | Epoca [02/100] | LR: 1.00e-05 | Train Loss: 0.5163 | Val Loss: 0.3936 - Acc: 0.889 - BalAcc: 0.904 - F1: 0.915
+2026-11-04 19:28:24 |   --> Checkpoint salvato con Val Loss: 0.3936
+2026-11-04 19:28:40 | Epoca [03/100] | LR: 1.00e-05 | Train Loss: 0.4259 | Val Loss: 0.3147 - Acc: 0.949 - BalAcc: 0.950 - F1: 0.963
+2026-11-04 19:28:40 |   --> Checkpoint salvato con Val Loss: 0.3147
+2026-11-04 19:28:55 | Epoca [04/100] | LR: 1.00e-05 | Train Loss: 0.3568 | Val Loss: 0.2594 - Acc: 0.975 - BalAcc: 0.965 - F1: 0.982
+2026-11-04 19:28:55 |   --> Checkpoint salvato con Val Loss: 0.2594
+2026-11-04 19:29:12 | Epoca [05/100] | LR: 1.00e-05 | Train Loss: 0.3066 | Val Loss: 0.2549 - Acc: 0.932 - BalAcc: 0.944 - F1: 0.948
+2026-11-04 19:29:12 |   --> Checkpoint salvato con Val Loss: 0.2549
+2026-11-04 19:29:27 | Epoca [06/100] | LR: 1.00e-05 | Train Loss: 0.2625 | Val Loss: 0.1938 - Acc: 0.979 - BalAcc: 0.968 - F1: 0.985
+2026-11-04 19:29:27 |   --> Checkpoint salvato con Val Loss: 0.1938
+2026-11-04 19:29:43 | Epoca [07/100] | LR: 1.00e-05 | Train Loss: 0.2343 | Val Loss: 0.2046 - Acc: 0.963 - BalAcc: 0.956 - F1: 0.973
+2026-11-04 19:29:43 |   --> Nessun miglioramento sulla Val Loss per 1/10 epoche.
+2026-11-04 19:29:59 | Epoca [08/100] | LR: 1.00e-05 | Train Loss: 0.2148 | Val Loss: 0.1924 - Acc: 0.961 - BalAcc: 0.953 - F1: 0.972
+2026-11-04 19:29:59 |   --> Checkpoint salvato con Val Loss: 0.1924
+2026-11-04 19:30:15 | Epoca [09/100] | LR: 1.00e-05 | Train Loss: 0.1872 | Val Loss: 0.1880 - Acc: 0.942 - BalAcc: 0.946 - F1: 0.957
+2026-11-04 19:30:15 |   --> Checkpoint salvato con Val Loss: 0.1880
+2026-11-04 19:30:31 | Epoca [10/100] | LR: 1.00e-05 | Train Loss: 0.1724 | Val Loss: 0.2008 - Acc: 0.912 - BalAcc: 0.935 - F1: 0.932
+2026-11-04 19:30:31 |   --> Nessun miglioramento sulla Val Loss per 1/10 epoche.
+2026-11-04 19:30:46 | Epoca [11/100] | LR: 1.00e-05 | Train Loss: 0.1595 | Val Loss: 0.1649 - Acc: 0.957 - BalAcc: 0.960 - F1: 0.968
+2026-11-04 19:30:46 |   --> Checkpoint salvato con Val Loss: 0.1649
+2026-11-04 19:31:02 | Epoca [12/100] | LR: 1.00e-05 | Train Loss: 0.1299 | Val Loss: 0.1675 - Acc: 0.947 - BalAcc: 0.957 - F1: 0.961
+2026-11-04 19:31:02 |   --> Nessun miglioramento sulla Val Loss per 1/10 epoche.
+2026-11-04 19:31:18 | Epoca [13/100] | LR: 1.00e-05 | Train Loss: 0.1229 | Val Loss: 0.1924 - Acc: 0.903 - BalAcc: 0.924 - F1: 0.924
+2026-11-04 19:31:18 |   --> Nessun miglioramento sulla Val Loss per 2/10 epoche.
+2026-11-04 19:31:34 | Epoca [14/100] | LR: 1.00e-05 | Train Loss: 0.1217 | Val Loss: 0.1492 - Acc: 0.959 - BalAcc: 0.962 - F1: 0.970
+2026-11-04 19:31:34 |   --> Checkpoint salvato con Val Loss: 0.1492
+2026-11-04 19:31:50 | Epoca [15/100] | LR: 1.00e-05 | Train Loss: 0.1126 | Val Loss: 0.1968 - Acc: 0.874 - BalAcc: 0.908 - F1: 0.899
+2026-11-04 19:31:50 |   --> Nessun miglioramento sulla Val Loss per 1/10 epoche.
+2026-11-04 19:32:06 | Epoca [16/100] | LR: 1.00e-05 | Train Loss: 0.1065 | Val Loss: 0.1479 - Acc: 0.953 - BalAcc: 0.966 - F1: 0.965
+2026-11-04 19:32:06 |   --> Checkpoint salvato con Val Loss: 0.1479
+2026-11-04 19:32:22 | Epoca [17/100] | LR: 1.00e-05 | Train Loss: 0.0934 | Val Loss: 0.1222 - Acc: 0.973 - BalAcc: 0.978 - F1: 0.980
+2026-11-04 19:32:22 |   --> Checkpoint salvato con Val Loss: 0.1222
+2026-11-04 19:32:38 | Epoca [18/100] | LR: 1.00e-05 | Train Loss: 0.0929 | Val Loss: 0.1440 - Acc: 0.946 - BalAcc: 0.960 - F1: 0.959
+2026-11-04 19:32:38 |   --> Nessun miglioramento sulla Val Loss per 1/10 epoche.
+2026-11-04 19:32:54 | Epoca [19/100] | LR: 1.00e-05 | Train Loss: 0.0803 | Val Loss: 0.1415 - Acc: 0.944 - BalAcc: 0.959 - F1: 0.957
+2026-11-04 19:32:54 |   --> Nessun miglioramento sulla Val Loss per 2/10 epoche.
+2026-11-04 19:33:10 | Epoca [20/100] | LR: 1.00e-05 | Train Loss: 0.0727 | Val Loss: 0.1664 - Acc: 0.907 - BalAcc: 0.932 - F1: 0.927
+2026-11-04 19:33:10 |   --> Nessun miglioramento sulla Val Loss per 3/10 epoche.
+2026-11-04 19:33:26 | Epoca [21/100] | LR: 1.00e-05 | Train Loss: 0.0621 | Val Loss: 0.1388 - Acc: 0.938 - BalAcc: 0.955 - F1: 0.953
+2026-11-04 19:33:26 |   --> Nessun miglioramento sulla Val Loss per 4/10 epoche.
+2026-11-04 19:33:42 | Epoca [22/100] | LR: 5.00e-06 | Train Loss: 0.0712 | Val Loss: 0.1530 - Acc: 0.920 - BalAcc: 0.942 - F1: 0.938
+2026-11-04 19:33:42 |   --> Nessun miglioramento sulla Val Loss per 5/10 epoche.
+2026-11-04 19:33:58 | Epoca [23/100] | LR: 5.00e-06 | Train Loss: 0.0588 | Val Loss: 0.1097 - Acc: 0.965 - BalAcc: 0.975 - F1: 0.974
+2026-11-04 19:33:58 |   --> Checkpoint salvato con Val Loss: 0.1097
+2026-11-04 19:34:14 | Epoca [24/100] | LR: 5.00e-06 | Train Loss: 0.0619 | Val Loss: 0.1544 - Acc: 0.914 - BalAcc: 0.938 - F1: 0.934
+2026-11-04 19:34:14 |   --> Nessun miglioramento sulla Val Loss per 1/10 epoche.
+2026-11-04 19:34:30 | Epoca [25/100] | LR: 5.00e-06 | Train Loss: 0.0636 | Val Loss: 0.1450 - Acc: 0.928 - BalAcc: 0.948 - F1: 0.945
+2026-11-04 19:34:30 |   --> Nessun miglioramento sulla Val Loss per 2/10 epoche.
+2026-11-04 19:34:46 | Epoca [26/100] | LR: 5.00e-06 | Train Loss: 0.0569 | Val Loss: 0.1966 - Acc: 0.868 - BalAcc: 0.904 - F1: 0.893
+2026-11-04 19:34:46 |   --> Nessun miglioramento sulla Val Loss per 3/10 epoche.
+2026-11-04 19:35:02 | Epoca [27/100] | LR: 5.00e-06 | Train Loss: 0.0557 | Val Loss: 0.1240 - Acc: 0.951 - BalAcc: 0.965 - F1: 0.963
+2026-11-04 19:35:02 |   --> Nessun miglioramento sulla Val Loss per 4/10 epoche.
+2026-11-04 19:35:18 | Epoca [28/100] | LR: 2.50e-06 | Train Loss: 0.0566 | Val Loss: 0.1638 - Acc: 0.901 - BalAcc: 0.928 - F1: 0.922
+2026-11-04 19:35:18 |   --> Nessun miglioramento sulla Val Loss per 5/10 epoche.
+2026-11-04 19:35:34 | Epoca [29/100] | LR: 2.50e-06 | Train Loss: 0.0503 | Val Loss: 0.2321 - Acc: 0.846 - BalAcc: 0.888 - F1: 0.874
+2026-11-04 19:35:34 |   --> Nessun miglioramento sulla Val Loss per 6/10 epoche.
+2026-11-04 19:35:50 | Epoca [30/100] | LR: 2.50e-06 | Train Loss: 0.0501 | Val Loss: 0.1452 - Acc: 0.924 - BalAcc: 0.945 - F1: 0.942
+2026-11-04 19:35:50 |   --> Nessun miglioramento sulla Val Loss per 7/10 epoche.
+2026-11-04 19:36:06 | Epoca [31/100] | LR: 2.50e-06 | Train Loss: 0.0555 | Val Loss: 0.1314 - Acc: 0.938 - BalAcc: 0.955 - F1: 0.953
+2026-11-04 19:36:06 |   --> Nessun miglioramento sulla Val Loss per 8/10 epoche.
+2026-11-04 19:36:22 | Epoca [32/100] | LR: 2.50e-06 | Train Loss: 0.0558 | Val Loss: 0.1987 - Acc: 0.870 - BalAcc: 0.905 - F1: 0.895
+2026-11-04 19:36:22 |   --> Nessun miglioramento sulla Val Loss per 9/10 epoche.
+2026-11-04 19:36:38 | Epoca [33/100] | LR: 2.50e-06 | Train Loss: 0.0507 | Val Loss: 0.1812 - Acc: 0.885 - BalAcc: 0.916 - F1: 0.909
+2026-11-04 19:36:38 |   --> Nessun miglioramento sulla Val Loss per 10/10 epoche.
+2026-11-04 19:36:38 | [Early Stopping] L'addestramento si interrompe all'epoca 33 per mancato miglioramento sulla Val Loss.
+2026-11-04 19:36:39 | Grafico delle loss salvato in: checkpoints/loss_plot.png
+2026-11-04 19:36:42 | --------------------------------------------------------------------------------
+2026-11-04 19:36:42 | [Test Set Finale - SOLO RGB] Loss: 0.3406 | Acc: 0.8821 | BalAcc: 0.9266 | F1: 0.9249 | Prec: 0.9981 | Recall: 0.8617 | FN: 86 | FP: 1 (TP: 536, TN: 115)

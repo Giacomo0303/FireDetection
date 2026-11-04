@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 
 import config as cfg
 from src.datasets import FireClassificationDataset
-from src.models import DualBranchRGBTModel
+from src.models import DualBranchRGBTModel, SingleBranchModel, SingleClassifierModel
 from src.train import eval_model, train_model
 
 
@@ -59,7 +59,10 @@ def main():
         num_workers=cfg.NUM_WORKERS // 2,
     )
 
-    if getattr(cfg, "DUAL_BRANCH", False):
+    dual_branch = getattr(cfg, "DUAL_BRANCH", False)
+    single_cls = getattr(cfg, "SINGLE_CLS", True)
+
+    if dual_branch and not(single_cls):
         logging.info(
             f"Inizializzazione DualBranchRGBTModel ({cfg.MODEL_NAME}) con pesi loss: "
             f"Fused={cfg.LOSS_WEIGHT_FUSED}, RGB={cfg.LOSS_WEIGHT_RGB}, TH={cfg.LOSS_WEIGHT_TH}"
@@ -71,12 +74,28 @@ def main():
             drop_rate=cfg.DROP_RATE,
             drop_path_rate=cfg.DROP_PATH_RATE,
         ).to(device)
-    else:
-        logging.info(f"Inizializzazione Single-Branch ({cfg.MODEL_NAME}, in_chans={cfg.IN_CHANS})")
-        model = timm.create_model(
+    elif dual_branch and single_cls:
+        fusion_mode = getattr(cfg, "FUSION_MODE", "sum_norm")
+        logging.info(
+            f"Inizializzazione SingleClassifierModel ({cfg.MODEL_NAME}, fusion_mode={fusion_mode}) con pesi loss: "
+            f"Fused={cfg.LOSS_WEIGHT_FUSED}, RGB={cfg.LOSS_WEIGHT_RGB}, TH={cfg.LOSS_WEIGHT_TH}"
+        )
+        model = SingleClassifierModel(
             model_name=cfg.MODEL_NAME,
             pretrained=cfg.PRETRAINED,
-            in_chans=cfg.IN_CHANS,
+            num_classes=cfg.NUM_CLASSES,
+            drop_rate=cfg.DROP_RATE,
+            drop_path_rate=cfg.DROP_PATH_RATE,
+            fusion_mode=fusion_mode,
+        ).to(device)
+    else:
+        logging.info(
+            f"Inizializzazione SingleBranchModel ({cfg.MODEL_NAME}, mode={cfg.MODE})"
+        )
+        model = SingleBranchModel(
+            mode=cfg.MODE,
+            model_name=cfg.MODEL_NAME,
+            pretrained=cfg.PRETRAINED,
             num_classes=cfg.NUM_CLASSES,
             drop_rate=cfg.DROP_RATE,
             drop_path_rate=cfg.DROP_PATH_RATE,
@@ -91,6 +110,7 @@ def main():
         mode="min",
         factor=cfg.SCHEDULER_FACTOR,
         patience=cfg.SCHEDULER_PATIENCE,
+        min_lr=getattr(cfg, "MIN_LR", 0.0),
     )
 
     model, _ = train_model(
@@ -128,11 +148,13 @@ def main():
                 f"(TP: {m['tp']}, TN: {m['tn']})"
             )
     else:
+        m = test_metrics
         logging.info(
-            f"[Test Set Finale] Loss: {test_metrics['loss']:.4f} - "
-            f"Acc: {test_metrics['acc']:.3f} - "
-            f"BalAcc: {test_metrics['bal_acc']:.3f} - "
-            f"F1: {test_metrics['f1']:.3f}"
+            f"[Test Set Finale - SOLO {cfg.MODE.upper()}] Loss: {m['loss']:.4f} | "
+            f"Acc: {m['acc']:.4f} | BalAcc: {m['bal_acc']:.4f} | "
+            f"F1: {m['f1']:.4f} | Prec: {m['precision']:.4f} | "
+            f"Recall: {m['recall']:.4f} | FN: {m['fn']} | FP: {m['fp']} "
+            f"(TP: {m['tp']}, TN: {m['tn']})"
         )
 
 

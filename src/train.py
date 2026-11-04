@@ -1,6 +1,7 @@
 import logging
 import os
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import torch
@@ -275,7 +276,9 @@ def train_model(
     # Salva il grafico delle loss
     actual_epochs = range(1, len(history["train_loss"]) + 1)
     plt.figure(figsize=(9, 5.5))
-    plt.plot(actual_epochs, history["train_loss"], label="Train Loss (Fused)", linewidth=2)
+    plt.plot(
+        actual_epochs, history["train_loss"], label="Train Loss (Fused)", linewidth=2
+    )
     plt.plot(
         actual_epochs,
         history["val_loss"],
