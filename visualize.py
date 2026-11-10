@@ -9,17 +9,20 @@ from umap import UMAP
 
 import config as cfg
 from src.datasets import FireClassificationDataset
-from src.models import DualBranchRGBTModel
+from src.models import SingleClassifierModel
 
 
 def main(checkpoint_path):
-    model = DualBranchRGBTModel(model_name=cfg.MODEL_NAME, pretrained=False)
+    model = SingleClassifierModel(
+        model_name=cfg.MODEL_NAME, pretrained=False, fusion_mode="max_norm"
+    )
     state_dict = torch.load(checkpoint_path)
     model.load_state_dict(state_dict)
     model.eval()
-    rbg_backbone = model.rgb_backbone.to("cuda")
+    rgb_backbone = model.rgb_backbone.to("cuda")
     thermal_backbone = model.thermal_backbone.to("cuda")
     rgb_norm = model.rgb_norm.to("cuda")
+    fuse_norm = model.fuse_norm.to("cuda")
     thermal_norm = model.thermal_norm.to("cuda")
 
     test_set = FireClassificationDataset(path=cfg.DATA_PATH, split="test")
@@ -29,6 +32,7 @@ def main(checkpoint_path):
 
     rgb_features = []
     thermal_features = []
+    fused_features = []
     labels = []
 
     for x, y in tqdm(test_loader):
@@ -36,13 +40,16 @@ def main(checkpoint_path):
         x_rgb = x[:, 0:3, :, :]
         x_thermal = x[:, 3:4, :, :]
         with torch.no_grad(), torch.amp.autocast("cuda", dtype=torch.float16):
-            rgb_features.append(rgb_norm(rbg_backbone(x_rgb)).to("cpu"))
-            thermal_features.append(thermal_norm(thermal_backbone(x_thermal)).to("cpu"))
+            rgb_f = rgb_norm(rgb_backbone(x_rgb))
+            thermal_f = thermal_norm(thermal_backbone(x_thermal))
+            rgb_features.append(rgb_f.to("cpu"))
+            thermal_features.append(thermal_f.to("cpu"))
+            fused_features.append(fuse_norm(torch.max(rgb_f, thermal_f)).to("cpu"))
         labels.append(y)
 
     rgb_features = torch.cat(rgb_features, dim=0)
     thermal_features = torch.cat(thermal_features, dim=0)
-    fused_features = torch.cat([rgb_features, thermal_features], dim=1)
+    fused_features = torch.cat(fused_features, dim=0)
 
     labels = torch.cat(labels, dim=0)
 
@@ -57,7 +64,9 @@ def main(checkpoint_path):
     fused_umap = umap.fit_transform(fused_features)
 
     # Griglia 2x3: 2 righe (t-SNE, UMAP) x 3 colonne (RGB, Termico, Fused)
-    fig, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(2, 3, figsize=(24, 15), dpi=250)
+    fig, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(
+        2, 3, figsize=(24, 15), dpi=250
+    )
 
     # --- RIGA 1: t-SNE ---
     # Subplot 1: Feature RGB
@@ -168,7 +177,7 @@ if __name__ == "__main__":
     argparser.add_argument(
         "--checkpoint",
         type=str,
-        default="Results/DualBranch_2Clf_ResNet50_CART/best_model.pth",
+        default="Results/SingleClf_MaxNorm_ResNet18_CART/best_model.pth",
         help="Percorso al file .pth",
     )
 

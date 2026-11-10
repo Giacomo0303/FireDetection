@@ -1,4 +1,4 @@
-from src.models import DualBranchRGBTModel
+from src.models import SingleClassifierModel
 import config as cfg
 import torch
 import pnnx
@@ -13,17 +13,19 @@ class ModelWrapper(torch.nn.Module):
     def forward(self, x_rgb, x_thermal):
         f_rgb = self.model.rgb_norm(self.model.rgb_backbone(x_rgb))
         f_thermal = self.model.thermal_norm(self.model.thermal_backbone(x_thermal))
-        f_fused = torch.cat([f_rgb, f_thermal], dim=1)
+        f_fused = self.model.fuse_norm(torch.max(f_rgb, f_thermal))
 
-        logit_rgb = self.model.unimodal_classifier(f_rgb)
-        logit_thermal = self.model.unimodal_classifier(f_thermal)
-        logit_fused = self.model.fused_classifier(f_fused)
+        logit_rgb = self.model.classifier(f_rgb)
+        logit_thermal = self.model.classifier(f_thermal)
+        logit_fused = self.model.classifier(f_fused)
 
         return logit_fused, logit_rgb, logit_thermal
 
 
 def main(path):
-    model = DualBranchRGBTModel(model_name=cfg.MODEL_NAME, pretrained=False)
+    model = SingleClassifierModel(
+        model_name=cfg.MODEL_NAME, fusion_mode=cfg.FUSION_MODE
+    )
     state_dict = torch.load(f=path)
     model.load_state_dict(state_dict)
     wrapped_model = ModelWrapper(model).eval()
